@@ -32,6 +32,10 @@ def single_player(ttt_board):
 def computer_input(ttt_board):
     valid_computer = False
 
+    # If possible, make sure player 1 can't control the board
+    if ttt_board[1][1] == " ":
+        return 1, 1
+
     # Offense Mode
     for i in range(3):
         # Check rows
