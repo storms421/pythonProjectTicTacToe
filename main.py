@@ -5,6 +5,7 @@ import random
 def single_player(ttt_board):
     # Flag false for loop
     is_win = False
+    # Increments each round taken (Total 9 rounds max)
     round_counter = 0
 
     display_table()
@@ -12,11 +13,12 @@ def single_player(ttt_board):
     # While TTT board isn't filled or players haven't won, loop
     while not is_win:
         # Get user input and take the first two inputs and store into row and col
-        row, col = valid_input(ttt_board)
+        row, col = valid_input(ttt_board, "Player 1, you are 'X'! Enter coordinates to place your piece down "
+                                          "(row col): ")
         ttt_board[row][col] = "X"
         display_table()
         round_counter += 1
-        if game_win(ttt_board, round_counter):
+        if game_win(ttt_board, round_counter, "Player Wins!"):
             break
 
         # Get Computer's input
@@ -25,7 +27,7 @@ def single_player(ttt_board):
         ttt_board[row][col] = "O"
         display_table()
         round_counter += 1
-        is_win = game_win(ttt_board, round_counter)
+        is_win = game_win(ttt_board, round_counter, "Computer Wins!")
 
 
 # Function used to determine the computer's movement
@@ -35,6 +37,20 @@ def computer_input(ttt_board):
     # If possible, make sure player 1 can't control the board
     if ttt_board[1][1] == " ":
         return 1, 1
+
+    # If offense player tries diagonal strategy, cut off path by playing offensively (makes player play defense)
+    if ttt_board[1][1] == "O" and ttt_board[0][0] == "X" and ttt_board[2][2] == "X" and ttt_board[1][0] == " ":
+        return 1, 0
+    if ttt_board[1][1] == "O" and ttt_board[2][0] == "X" and ttt_board[0][2] == "X" and ttt_board[1][2] == " ":
+        return 1, 2
+
+    # If offense player goes to middle, cut off one diagonal area by default (Sticks them with one area to work with)
+    if ttt_board[1][1] == "X" and ttt_board[0][2] == " ":
+        return 0, 2
+
+    # This beats the player's attempt at a strategy to get the upper hand on the computer
+    if ttt_board[1][1] == "X" and ttt_board[0][2] == "O" and ttt_board[2][0] == "X" and ttt_board[0][0] == " ":
+        return 0, 0
 
     # Offense Mode
     for i in range(3):
@@ -120,29 +136,28 @@ def multiplayer(ttt_board):
     # While TTT board isn't filled or players haven't won, loop
     while not is_win:
         # Get user input and take the first two inputs and store into row and col
-        row, col = map(int, input("Player 1 you are 'X'! Enter coordinates to place your piece down: ").split())
+        row, col = valid_input(ttt_board, "Player 1 you are 'X'! Enter coordinates to place your piece down: ")
         ttt_board[row][col] = "X"
         display_table()
         round_counter += 1
-        if game_win(ttt_board, round_counter):
+        if game_win(ttt_board, round_counter, "Player 1 Wins"):
             break
 
-        row, col = map(int, input("Player 2 you are 'O'! Enter coordinates to place your piece down: ").split())
+        row, col = valid_input(ttt_board, "Player 2 you are 'O'! Enter coordinates to place your piece down: ")
         ttt_board[row][col] = "O"
         display_table()
         round_counter += 1
-        is_win = game_win(ttt_board, round_counter)
+        is_win = game_win(ttt_board, round_counter, "Player 2 Wins!")
 
 
 # Makes sure the players put in a valid input
-def valid_input(ttt_board):
+def valid_input(ttt_board, input_string):
     valid = False
 
     while not valid:
         # Checks if an integer is inputted
         try:
-            temp_row, temp_col = map(int, input(
-                "Player 1, you are 'X'! Enter coordinates to place your piece down (row col): ").split())
+            temp_row, temp_col = map(int, input(input_string).split())
 
             # Checks if coordinate inputs are in range
             if 0 <= temp_row < 3 and 0 <= temp_col < 3:
@@ -158,41 +173,41 @@ def valid_input(ttt_board):
 
 
 # Determines who wins
-def game_win(ttt_board, count):
+def game_win(ttt_board, count, winner_string):
     # If the row or columns match vertically or horizontally, there is a winner
     for i in range(3):
         if ttt_board[0][i] == "X" and ttt_board[1][i] == "X" and ttt_board[2][i] == "X":
-            print("\nPlayer 1 Wins!")
+            print(f"\n{winner_string}\n")
             return True
         elif ttt_board[i][0] == "X" and ttt_board[i][1] == "X" and ttt_board[i][2] == "X":
-            print("\nPlayer 1 Wins!")
+            print(f"\n{winner_string}\n")
             return True
         elif ttt_board[0][i] == "O" and ttt_board[1][i] == "O" and ttt_board[2][i] == "O":
-            print("\nPlayer 2 Wins!")
+            print(f"\n{winner_string}\n")
             return True
         elif ttt_board[i][0] == "O" and ttt_board[i][1] == "O" and ttt_board[i][2] == "O":
-            print("\nPlayer 2 Wins!")
+            print(f"\n{winner_string}\n")
             return True
 
     # If the row or columns match diagonally, there is a winner
     if ttt_board[0][0] == "X" and ttt_board[1][1] == "X" and ttt_board[2][2] == "X":
-        print("\nPlayer 1 Wins!")
+        print(f"\n{winner_string}\n")
         return True
     elif ttt_board[2][0] == "X" and ttt_board[1][1] == "X" and ttt_board[0][2] == "X":
-        print("\nPlayer 1 Wins!")
+        print(f"\n{winner_string}\n")
         return True
     elif ttt_board[0][0] == "O" and ttt_board[1][1] == "O" and ttt_board[2][2] == "O":
-        print("\nPlayer 2 Wins!")
+        print(f"\n{winner_string}\n")
         return True
     elif ttt_board[2][0] == "O" and ttt_board[1][1] == "O" and ttt_board[0][2] == "O":
-        print("\nPlayer 2 Wins!")
+        print(f"\n{winner_string}\n")
         return True
 
-    # If counter exceeds 9 slots, return Cat's Game
+    # If counter exceeds 9 rounds, return Cat's Game
     if count < 9:
         return False
     else:
-        print("\nCat's Game")
+        print("\nCat's Game\n")
         return True
 
 
@@ -209,13 +224,31 @@ def display_table():
 
 
 if __name__ == '__main__':
-    print("Welcome to Tic-Tac-Toe!")
+    while True:
+        print("Welcome to Tic-Tac-Toe!")
 
-    # 2D TTT board initialized
-    tic_tac_toe_board = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
+        # 2D TTT board initialized
+        tic_tac_toe_board = [[" ", " ", " "], [" ", " ", " "], [" ", " ", " "]]
 
-    # Call function for multiplayer game (cpu version to come cause you have NO friends)
-    single_player(tic_tac_toe_board)
+        # Checks if only an integer is inputted
+        try:
+            menu = input("How will you be playing? \n(1) Single Player \n(2) Multiplayer \n(3) Exit\n")
+            menu = int(menu)
+            # Checks if input is an option
+            if menu == 1:
+                # Call function for single player game (One friend mode)
+                single_player(tic_tac_toe_board)
+            elif menu == 2:
+                # Call function for multiplayer game (NO friends mode)
+                multiplayer(tic_tac_toe_board)
+            elif menu == 3:
+                # Rage Quit
+                break
+            else:
+                print("\nOut of range. Enter 1, 2, or 3\n")
+        except ValueError:
+            print("\nInvalid input. That's not an integer >:(\n")
+
 
 # Information for me to reference:
 # .split() is used to split up strings. It, by default, splits based on whitespace.
